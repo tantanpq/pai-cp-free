@@ -1,0 +1,12 @@
+{
+  "action": "WORKSPEC",
+  "source_identity": {
+    "base_commit": "ba3a70ce65b1f6eb42b52ccb2ddc0d6731b32fb6",
+    "diff_hash": "286d6db0eeda4ce29163dddaf0616b0f04a00304690b2ee6ca1b309271adaad6"
+  },
+  "files": [
+    "note.txt"
+  ],
+  "objective": "Add local-delta",
+  "done": true
+}

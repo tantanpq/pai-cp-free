@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pai://contracts/takeover/r1",
+  "title": "PAI Session Takeover R1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sessionId","state"],
+  "properties": {
+    "sessionId": {"type":"string"},
+    "state": {"enum":["AGENT_CONTROL","TAKEOVER_REQUESTED","HUMAN_CONTROL","RELEASED"]},
+    "humanActor": {"type":["string","null"]},
+    "at": {"type":"string","format":"date-time"}
+  }
+}

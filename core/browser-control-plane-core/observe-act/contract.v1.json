@@ -1,0 +1,125 @@
+{
+  "schema": "cp.observe-act.contract/v1",
+  "version": "1.1.0-internal-candidate",
+  "actions": [
+    "cp.observe",
+    "cp.step",
+    "capabilities.describe"
+  ],
+  "featureFlags": [
+    "CP_OBSERVE_WEB",
+    "CP_OBSERVE_DESKTOP",
+    "CP_STEP_DESKTOP"
+  ],
+  "defaultEnabled": false,
+  "snapshotTtlMs": 30000,
+  "maximumElements": 500,
+  "maximumTimeoutMs": 30000,
+  "target": {
+    "required": [
+      "host",
+      "surface"
+    ],
+    "webRequired": [
+      "tab_id",
+      "origin"
+    ],
+    "desktopRequired": [
+      "window_ref",
+      "app"
+    ]
+  },
+  "coordinateSpaces": [
+    "physical_screen_px",
+    "physical_window_px",
+    "screenshot_px",
+    "window_normalized"
+  ],
+  "actionKinds": [
+    "click",
+    "double_click",
+    "drag",
+    "type",
+    "press",
+    "scroll",
+    "wait_for"
+  ],
+  "postconditionKinds": [
+    "element_visible",
+    "text_contains",
+    "value_equals",
+    "state_changed"
+  ],
+  "adapterInterface": {
+    "factory": "createAdapter(options) -> adapter",
+    "options": [
+      "cdpUrl",
+      "verifyResource",
+      "evidenceDir"
+    ],
+    "methods": {
+      "observe": "observe(target, params) -> {target_fingerprint,session_ref,window,elements,state,image?:{bytes,mime,kind},image_unavailable_reason?:string}",
+      "preflight": "preflight(target, snapshot, action) -> void; throw STALE_SNAPSHOT/TARGET_MISMATCH/OCCLUDED/BLOCKED_PERMISSION/BLOCKED_SESSION before effect",
+      "execute": "execute(target, snapshot, action, {markAttempt,verifyResource}) -> {action_state,effect_state}; call markAttempt(binding) exactly before potentially mutating native action, never retry uncertain effects",
+      "close": "close() -> disconnect only; do not close foreign pages/windows",
+      "capabilities": "capabilities() -> {installed,reachable,qualified,action_kinds,known_limits}"
+    }
+  },
+  "elements": "Array<{role,name,bounds_px:[x,y,w,h],source,confidence,locator?}>; refs assigned only by core as snapshot_id:eN",
+  "state": "Deterministic bounded JSON for hash; include target geometry and controls, omit timestamps/cursors/secrets/network payloads",
+  "coreOwns": [
+    "target and request validation",
+    "snapshot persistence and references",
+    "TTL and target/state recheck",
+    "postcondition evaluation",
+    "operation journal integration",
+    "next snapshot and image artifact",
+    "feature flags"
+  ],
+  "adapterOwns": [
+    "exact target resolution",
+    "native observation",
+    "occlusion/focus/coordinate validation",
+    "one native effect",
+    "native wait-for support"
+  ],
+  "preflightMustBeReadOnly": true,
+  "afterObservationRequired": true,
+  "snapshotCaptureFailure": "UNKNOWN_EFFECT after attempt; never fabricate next snapshot",
+  "images": "Scoped target full/crop/none. Opt-in Web region capture has explicit CSS image geometry; unchanged image reuse retains matching region/geometry/hash. Pixel delta is not implemented.",
+  "candidateOnly": true,
+  "canonicalGit": "NEEDS_SOURCE",
+  "denialRule": "No different backend to bypass denial for the same target/scope",
+  "regionCapture": {
+    "surface": "web",
+    "optIn": "cp.observe.params.region",
+    "region": {
+      "space": "viewport_css_px",
+      "rect": "[integer x,integer y,positive integer width,positive integer height], wholly inside content viewport; no clamping"
+    },
+    "image_geometry": {
+      "space": "viewport_css_px",
+      "source_rect_css_px": "[x,y,width,height]",
+      "image_size_px": "[width,height]",
+      "css_pixels_per_image_pixel": [
+        1,
+        1
+      ]
+    },
+    "geometryGuard": "visualViewport scale1 and zero offsets; exact viewport/DPR/scroll before and after capture",
+    "stepOverride": false,
+    "stepRegion": "persisted snapshot region, identical freshness and after capture",
+    "actionKinds": [
+      "click",
+      "type",
+      "wait_for"
+    ],
+    "containment": "Every coordinate-space result and concrete semantic action center within half-open ROI",
+    "privacy": "Whole original viewport/tree secret scan; secret outside ROI suppresses all pixels",
+    "beforeEffect": "Actual bound PNG/ref/hash/image_geometry mandatory; never and invalid after image mode reject before attempt",
+    "afterAttemptFailure": "UNKNOWN_EFFECT; no automatic retry",
+    "nativeSupport": false,
+    "legacyFullMode": "Existing full capture/hash/coordinates and old full snapshots preserved",
+    "pixelDelta": false
+  }
+}

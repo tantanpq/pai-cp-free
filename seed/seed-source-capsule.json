@@ -1,0 +1,19 @@
+{
+  "schema": "pai.personal.source-capsule/v1",
+  "capturedAt": "2026-09-24",
+  "topic": "Seed Language and Seed Code progress",
+  "facts": [
+    {
+      "text": "The Seed Runtime consolidated plan declares STRATEGY / DESIGN CANDIDATE, AUTHORITY NONE, and RUNTIME EFFECT NONE. It is a future architecture, not proof of a completed live runtime.",
+      "ref": "https://docs.google.com/document/d/132SVyooRK9bdak6-MnLEJ6Na_6E1aTGUBzLMVsG4_Yk/edit"
+    },
+    {
+      "text": "The Live Convergence Master places Seed Manifest, typed Seed IR, first verified Seed Codes, deterministic Seed Runtime and tiny Semantic Compiler after HOME_DOGFOOD_ACCEPTED. The current product terminal remains HOME_DOGFOOD_ACCEPTED.",
+      "ref": "https://docs.google.com/document/d/168Lz6whW9-wEkKa8H1umsTU6DSCUumej89ERk-SJkDk/edit"
+    },
+    {
+      "text": "Provider V0 result confirms WEB_BRAIN_LINK_PASS, SELF_DEVELOPMENT_LOOP_PASS, and long-output artifact handoff. This proves the Web cognition route separately; it does not complete Seed Language or Seed Code.",
+      "ref": "https://drive.google.com/file/d/1GLLjbTODDJc60K-0vkSok1kvldizdUeb/view"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pai://contracts/session-contract/r1",
+  "title": "PAI Governed Persistent Session R1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sessionId","requestId","rootId","ownerHost","claimId","shellClass","cwd","allowedRoots","effectClass","networkPolicy","sessionClass","state","openedAt","lastActivityAt","cleanupState"],
+  "properties": {
+    "sessionId": {"type":"string","pattern":"^ses-[A-Za-z0-9-]+$"},
+    "requestId": {"type":"string","minLength":1,"maxLength":160},
+    "rootId": {"type":"string","minLength":1,"maxLength":160},
+    "ownerHost": {"type":"string","minLength":1,"maxLength":160},
+    "ownerExecutor": {"type":"string","minLength":1,"maxLength":160},
+    "claimId": {"type":"string","minLength":1,"maxLength":256},
+    "shellClass": {"type":"string","minLength":1,"maxLength":96},
+    "cwd": {"type":"string","minLength":1,"maxLength":1024},
+    "allowedRoots": {"type":"array","minItems":1,"maxItems":64,"items":{"type":"string","minLength":1,"maxLength":1024}},
+    "effectClass": {"type":"string","minLength":1,"maxLength":128},
+    "networkPolicy": {"type":"string","minLength":1,"maxLength":128},
+    "sessionClass": {"enum":["EPHEMERAL","PERSISTENT","PINNED"]},
+    "state": {"enum":["OPEN","ACTIVE","WAITING_INPUT","RUNNING","IDLE","CLOSING","EXITED","ORPHANED","RECOVERING","REAPING","CLOSED","LOST"]},
+    "openedAt": {"type":"string","format":"date-time"},
+    "lastActivityAt": {"type":"string","format":"date-time"},
+    "idleTimeoutMs": {"type":["integer","null"],"minimum":0},
+    "maxRuntimeMs": {"type":["integer","null"],"minimum":0},
+    "expiresAt": {"type":["string","null"],"format":"date-time"},
+    "maxRamBytes": {"type":"integer","minimum":4096},
+    "maxInputBytes": {"type":"integer","minimum":1},
+    "cleanupState": {"type":"string"},
+    "exitCode": {"type":["integer","null"]},
+    "exitSignal": {"type":["string","null"]}
+  }
+}

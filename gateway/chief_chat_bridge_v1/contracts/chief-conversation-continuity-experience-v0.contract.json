@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "contractId": "PAI_CHIEF_CONVERSATION_CONTINUITY_EXPERIENCE_V0",
+  "workUnitId": "PAI-CHIEF-CONVERSATION-CONTINUITY-EXPERIENCE-V0-W1",
+  "sourceDriveId": "1FJ2dud5rfML6vimzGIFbqr7EcvDhdcOcjdY9PGSQFXI",
+  "mode": "PRODUCT_EXPERIENCE_CANDIDATE_NO_COMPETING_ASSISTANT",
+  "conversationModes": [
+    "EXPLORE",
+    "DECIDE",
+    "EXECUTE",
+    "REVIEW",
+    "REFLECT"
+  ],
+  "userFacingObjects": {
+    "resumeCard": [
+      "goal",
+      "acceptedState",
+      "evidence",
+      "blocker",
+      "nextAction",
+      "unresolvedAuthority"
+    ],
+    "currentPicture": [
+      "truthState",
+      "lifecycleStage",
+      "verified",
+      "staleEvidence",
+      "conflictingEvidence",
+      "operationalMismatch",
+      "degradedReason",
+      "inferred"
+    ],
+    "actionCard": [
+      "disposition",
+      "previewRequired",
+      "actionPreview",
+      "effectBoundary"
+    ],
+    "resultCard": [
+      "status",
+      "running",
+      "complete",
+      "evidence"
+    ],
+    "improvementCard": [
+      "correction",
+      "persistedCorrections",
+      "behaviorApplied",
+      "authority"
+    ],
+    "decisionCard": [
+      "required",
+      "unresolvedAuthority",
+      "owner"
+    ]
+  },
+  "continuityCapsule": [
+    "goal",
+    "acceptedState",
+    "evidence",
+    "blocker",
+    "nextAction",
+    "unresolvedAuthority"
+  ],
+  "dispositions": {
+    "ASK": "canonical context genuinely missing",
+    "ACT": "bounded delegated intent after action preview",
+    "WAIT": "existing authority or evidence transition pending",
+    "SURFACE": "stale conflict mismatch or degraded truth must be shown"
+  },
+  "effectContract": {
+    "previewBeforeEffect": true,
+    "previewStatus": "PREVIEWED_NOT_EXECUTED",
+    "commitRoute": "EXISTING_GOVERNOR_REQUEST_ONLY",
+    "chiefExecutionAuthority": false,
+    "chiefClaimAuthority": false,
+    "chiefGraphAuthority": false
+  },
+  "truthContract": {
+    "canonicalProofRequired": true,
+    "falseRunningDenied": true,
+    "falseCompleteDenied": true,
+    "degradedStateVisible": true,
+    "staleAndConflictVisible": true
+  },
+  "continuityContract": {
+    "routineSaveSyncRequired": false,
+    "semanticDeltaOnly": true,
+    "rawTranscriptPersistence": false,
+    "twoChatResume": true
+  },
+  "correctionContract": {
+    "persistedOperationalCandidate": true,
+    "subsequentProjectionMustApply": true,
+    "canonicalAdmission": false
+  },
+  "authorityBoundary": [
+    "NO_NEW_ASSISTANT",
+    "NO_NEW_PLANNER",
+    "NO_NEW_AUTHORITY",
+    "NO_NEW_GRAPH",
+    "NO_NEW_QUEUE",
+    "NO_NEW_DATABASE",
+    "GOVERNOR_AND_RSM_REMAIN_OWNERS"
+  ],
+  "acceptance": [
+    "20_TURN_DETERMINISTIC_EQUIVALENT",
+    "TWO_CHAT_BOUNDARIES",
+    "ALL_FIVE_MODES",
+    "ALL_SIX_OBJECTS",
+    "PREVIEW_BEFORE_EFFECT",
+    "CORRECTION_PERSISTENCE",
+    "STALE_CONFLICT_MISMATCH_DEGRADED_FIXTURES",
+    "NO_MANUAL_RELAY",
+    "INDEPENDENT_HOME_QA"
+  ]
+}

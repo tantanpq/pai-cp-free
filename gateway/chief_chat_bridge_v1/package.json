@@ -1,0 +1,13 @@
+{
+    "name": "pai-chief-chat-bridge-v1",
+    "version": "2.0.0",
+    "private": true,
+    "description": "Private, provider-neutral Streamable HTTP MCP Federation Gateway for PAI Chief.",
+    "scripts": {
+        "test": "node tests/chief-chat-bridge.test.js && node tests/canonical-truth-adapter.test.js && node tests/qcheck-refresh-nonblocking.test.js && node tests/chief-conversation-experience.test.js && node tests/pai-gateway-r2.test.js && node tests/http-contract.test.js && node tests/behavioral-memory.test.js && node tests/resume-context.test.js && node tests/user-prompt-evidence-hook.test.js && node tests/prompt-bundle-mcp.test.js && node tests/context-economy-successor.test.js && node tests/context-economy-r2.test.js && node tests/context-carrier-economy.test.js && node tests/federation-gateway.test.js && node tests/chief-work-governed-executor.test.js && node tests/context-repair-p0.test.js && node tests/notebook-projection.test.js && node tests/jit-tool-projection.test.js && node tests/retrieval-guard.test.js && node tests/resume-regression-huge-fixture.test.js && node tests/protocol-conformance-2026.test.js && node tests/protocol-conformance-modern-2026.test.js && node tests/context-terminal-regression.test.js && node tests/direct-cli-transport.test.js && node tests/p0-developer-host-control.test.cjs && node tests/transport-hardening.test.js && node tests/candidate-filesystem-containment.test.cjs",
+        "start": "node src/server.js"
+    },
+    "dependencies": {
+        "playwright": "^1.63.0"
+    }
+}

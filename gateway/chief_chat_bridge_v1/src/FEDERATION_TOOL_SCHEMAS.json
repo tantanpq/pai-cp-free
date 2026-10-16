@@ -1,0 +1,476 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PAI_FEDERATION_TOOL_SCHEMAS",
+  "description": "JSON Schemas for the provider-neutral Federation plane tools in PAI MCP Gateway",
+  "tools": [
+    {
+      "name": "pai_capabilities",
+      "description": "Discover verified AI provider and tool capabilities relevant to an objective. Read only; fails closed on stale or missing evidence.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "objective"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "objective": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "required_capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32
+          },
+          "privacy_boundary": {
+            "type": "string",
+            "enum": [
+              "LOCAL_ONLY",
+              "ZERO_RETENTION_PROVIDER",
+              "RESTRICTED_DATA_PROHIBITED",
+              "OPEN_RESEARCH"
+            ]
+          },
+          "effect_class": {
+            "type": "string",
+            "enum": [
+              "READ_ONLY",
+              "CANDIDATE_DRAFT",
+              "REVERSIBLE_ACTION",
+              "GOVERNED_DELEGATION"
+            ]
+          },
+          "optional_provider_preference": {
+            "type": "string",
+            "enum": [
+              "ANTIGRAVITY",
+              "CHATGPT",
+              "CLAUDE",
+              "GEMINI",
+              "GROK",
+              "LOCAL_LLM"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "pai_cognition_run",
+      "description": "Execute or delegate a bounded provider-neutral cognition request. Output is candidate intelligence with AUTHORITY_NONE; never self-admits work or authorizes effects.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "objective",
+          "reasoning_type",
+          "idempotency_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "objective": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "reasoning_type": {
+            "type": "string",
+            "enum": [
+              "SCOUT",
+              "SYNTHESIZE",
+              "ARCHITECT",
+              "CHALLENGE",
+              "PLAN",
+              "RECONCILE",
+              "VERIFY",
+              "CURATE"
+            ]
+          },
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64
+          },
+          "context_budget": {
+            "type": "object",
+            "properties": {
+              "max_tokens": {
+                "type": "integer",
+                "minimum": 256,
+                "maximum": 128000
+              },
+              "timeout_ms": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 300000
+              }
+            }
+          },
+          "provider_preferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "privacy_boundary": {
+            "type": "string",
+            "enum": [
+              "LOCAL_ONLY",
+              "ZERO_RETENTION_PROVIDER",
+              "RESTRICTED_DATA_PROHIBITED",
+              "OPEN_RESEARCH"
+            ]
+          },
+          "expected_output": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "authority": {
+            "type": "string",
+            "enum": [
+              "NONE"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "pai_action_run",
+      "description": "Governed Chief technical work and persistent HOME terminal session operation (chief_work_request). Supports persistent PowerShell terminal via action_payload.operation (OPEN | INPUT | READ | STATUS | SNAPSHOT | CLOSE), reusing session_id across calls with unique request_id per call. Routes work through Chief, Governor, TaskBox, and dynamic executors (Antigravity CLI, Grok CLI, etc.).",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "intent": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "High-level technical intent (e.g. BUILD, REPAIR, QA, CHANGE, or descriptive intent)"
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "Technical objective description"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "Target component or path (legacy alias for objective)"
+          },
+          "scope": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Mutable scope path or NONE"
+          },
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64,
+            "description": "Source evidence references"
+          },
+          "acceptance": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "Acceptance criteria"
+          },
+          "effect_class": {
+            "type": "string",
+            "enum": [
+              "NO_MATERIAL_DELTA",
+              "CANDIDATE_DRAFT",
+              "GOVERNED_DELEGATION",
+              "DELEGATE_TASKBOX",
+              "DELEGATE_EXISTING_INTAKE",
+              "ACTION_DIRECT",
+              "DELEGATE_CODEX",
+              "WAIT_CONDITION",
+              "HUMAN_GATE",
+              "READ_ONLY"
+            ]
+          },
+          "requested_mode": {
+            "type": "string",
+            "enum": [
+              "plan",
+              "accept-edits",
+              "candidate-only",
+              "EXPLORE",
+              "DECIDE",
+              "EXECUTE",
+              "REVIEW"
+            ]
+          },
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "description": "Unique request/idempotency key"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "authority_policy_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "selected_provider_tool": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "INPUT",
+              "READ",
+              "STATUS",
+              "SNAPSHOT",
+              "CLOSE",
+              "RUN",
+              "ADMIN_STATUS",
+              "ADMIN_SUBMIT",
+              "ADMIN_RESULT"
+            ],
+            "description": "Persistent terminal session lifecycle operation"
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Persistent terminal session identifier"
+          },
+          "input": {
+            "type": "string",
+            "description": "Command or input to execute in the terminal session"
+          },
+          "command": {
+            "type": "string",
+            "description": "Convenience alias for input command"
+          },
+          "cursor": {
+            "type": "integer",
+            "description": "Byte offset cursor for paged output reading"
+          },
+          "cwd": {
+            "type": "string",
+            "description": "Working directory for the session or command"
+          },
+          "action_payload": {
+            "type": "object",
+            "description": "Terminal or action payload: operation (OPEN|INPUT|READ|STATUS|SNAPSHOT|CLOSE), session_id, input, cursor, max_bytes, max_lines, tail, cwd, scope, target_host.",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "OPEN",
+                  "INPUT",
+                  "READ",
+                  "STATUS",
+                  "SNAPSHOT",
+                  "CLOSE",
+                  "RUN",
+                  "ADMIN_STATUS",
+                  "ADMIN_SUBMIT",
+                  "ADMIN_RESULT"
+                ],
+                "description": "Persistent terminal session lifecycle operation"
+              },
+              "session_id": {
+                "type": "string",
+                "description": "Persistent terminal session identifier (reused across calls)"
+              },
+              "input": {
+                "type": "string",
+                "description": "PowerShell command or input stream to execute in the persistent session"
+              },
+              "cursor": {
+                "type": "integer",
+                "description": "Byte offset cursor for paged output reading"
+              },
+              "max_bytes": {
+                "type": "integer",
+                "description": "Maximum bytes to return from spooler"
+              },
+              "max_lines": {
+                "type": "integer",
+                "description": "Maximum lines to return from spooler"
+              },
+              "tail": {
+                "type": "boolean",
+                "description": "Whether to return the latest output tail"
+              },
+              "cwd": {
+                "type": "string",
+                "description": "Initial or target working directory for the session"
+              },
+              "scope": {
+                "type": "string",
+                "description": "Scoped execution root or candidate scope"
+              },
+              "target_host": {
+                "type": "string",
+                "description": "Target host identifier (e.g. HOME)"
+              },
+              "executable": {
+                "type": "string",
+                "enum": [
+                  "node",
+                  "python",
+                  "codex",
+                  "git"
+                ]
+              },
+              "arguments": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 40
+              },
+              "nonce": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,80}$"
+              },
+              "envelope": {
+                "type": "object"
+              }
+            }
+          },
+          "executable": {
+            "type": "string",
+            "enum": [
+              "node",
+              "python",
+              "codex",
+              "git"
+            ]
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 40
+          },
+          "nonce": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,80}$"
+          },
+          "envelope": {
+            "type": "object"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "pai_run_status",
+      "description": "Inspect the status of an ongoing or completed cognition/action run. Legacy fallback when client lacks MCP Tasks extension.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "run_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "pai_result",
+      "description": "Retrieve the normalized terminal result of a completed cognition or action run.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "run_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "pai_cancel",
+      "description": "Request cancellation of an in-flight cognition or action run. Legacy fallback for clients without standard task cancellation.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "run_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      }
+    }
+  ]
+}

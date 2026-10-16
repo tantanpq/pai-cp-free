@@ -1,0 +1,13 @@
+{
+  "name": "pai-cp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PAI CP - control planes that let AI agents operate real web apps and PCs on your own machine. Local-first, your own accounts, your own keys.",
+  "license": "PolyForm-Shield-1.0.0",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "dependencies": {
+    "playwright-core": "^1.49.0"
+  }
+}
