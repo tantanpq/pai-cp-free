@@ -13,7 +13,7 @@ checks need no account; sign into GitHub for the real action below.
 ## Path A: install with your AI agent
 
 ```text
-Set up PAI CP for me: clone https://github.com/tantanpq/pai-cp.git into ./pai-cp, then read and follow ./pai-cp/AGENT_INSTALL.md exactly.
+Set up PAI CP for me: clone https://github.com/tantanpq/pai-cp-free.git into ./pai-cp-free, then read and follow ./pai-cp-free/AGENT_INSTALL.md exactly.
 ```
 
 The agent runs `install.mjs`; success is its final `PAI_CP_INSTALL_RESULT` line containing `"ok":true`.
@@ -21,8 +21,8 @@ The agent runs `install.mjs`; success is its final `PAI_CP_INSTALL_RESULT` line 
 ## Path B: manual installation
 
 ```sh
-git clone https://github.com/tantanpq/pai-cp.git ./pai-cp
-cd ./pai-cp
+git clone https://github.com/tantanpq/pai-cp-free.git ./pai-cp-free
+cd ./pai-cp-free
 npm install
 node tools/doctor.mjs
 ```

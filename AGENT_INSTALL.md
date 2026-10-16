@@ -14,24 +14,24 @@ If Node is missing or too old, you MUST install Node >= 22.5 LTS yourself: on Wi
 
 ## Install
 
-If `./pai-cp` does not exist, run:
+If `./pai-cp-free` does not exist, run:
 
 ```sh
-git clone https://github.com/tantanpq/pai-cp.git pai-cp
+git clone https://github.com/tantanpq/pai-cp-free.git pai-cp-free
 ```
 
-If `./pai-cp` exists and is this repository, update in place; installation is idempotent:
+If `./pai-cp-free` exists and is this repository, update in place; installation is idempotent:
 
 ```sh
-git -C pai-cp pull --ff-only
+git -C pai-cp-free pull --ff-only
 ```
 
-Before updating an existing directory, verify it is this repository: run `git -C pai-cp remote get-url origin` — it must print `https://github.com/tantanpq/pai-cp.git` (or the SSH form `git@github.com:tantanpq/pai-cp.git`). If it prints anything else, that directory is unrelated: preserve it untouched and clone into a different parent directory instead.
+Before updating an existing directory, verify it is this repository: run `git -C pai-cp-free remote get-url origin` — it must print `https://github.com/tantanpq/pai-cp-free.git` (or the SSH form `git@github.com:tantanpq/pai-cp-free.git`). If it prints anything else, that directory is unrelated: preserve it untouched and clone into a different parent directory instead.
 
 Then run:
 
 ```sh
-cd pai-cp && node install.mjs
+cd pai-cp-free && node install.mjs
 ```
 
 The install normally finishes within a few minutes; the dependency download is the slow part, and step diagnostics print as it goes. If 10 minutes pass with no verdict line, treat the run as stuck: stop, keep the last diagnostic lines, and report them to your user.
@@ -66,7 +66,7 @@ After applying a fix, re-run `node install.mjs` at most 2 more times. If it stil
 
 ## After install
 
-Installation is already complete at this point — the verdict line above is the finish line, and nothing below is required for a successful install. What follows is an optional first real action (a smoke check, not an install step). Unlike the install, it needs the user's own Chrome already running and signed in, with CDP available at `http://127.0.0.1:9336`. Run the commands from the root of the clone (`./pai-cp`) — the paths below are relative to it.
+Installation is already complete at this point — the verdict line above is the finish line, and nothing below is required for a successful install. What follows is an optional first real action (a smoke check, not an install step). Unlike the install, it needs the user's own Chrome already running and signed in, with CDP available at `http://127.0.0.1:9336`. Run the commands from the root of the clone (`./pai-cp-free`) — the paths below are relative to it.
 
 Run a first real action through a CP CLI: send one JSON command on stdin and read one JSON line on stdout.
 
