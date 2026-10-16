@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pai://contracts/output-ref/r1",
+  "title": "PAI Output Reference R1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sessionId","outputRef","outputBytes","retainedStartCursor","nextCursor","endCursor","truncated"],
+  "properties": {
+    "sessionId": {"type":"string"},
+    "outputRef": {"type":"string","pattern":"^pai-output://"},
+    "outputBytes": {"type":"integer","minimum":0},
+    "retainedStartCursor": {"type":"integer","minimum":0},
+    "requestedCursor": {"type":"integer","minimum":0},
+    "nextCursor": {"type":"integer","minimum":0},
+    "endCursor": {"type":"integer","minimum":0},
+    "truncated": {"type":"boolean"},
+    "hasMore": {"type":"boolean"}
+  }
+}

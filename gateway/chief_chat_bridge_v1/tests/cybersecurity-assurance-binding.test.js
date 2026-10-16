@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {createBridge}=require('../src/chief-chat-bridge');
+const domains=require('../../pai_domain_v1/runtime/domain-intelligence');
+const identity={userId:'tan',paiIdentityId:'pai-chief',projectId:'PAI',role:'PAI_CHIEF'};
+const receipt=reason=>({status:'PASS',reason,version:'PAI_MIND_V1',driveFileId:'1b8Uwm6nNnTCe_VSdnWIo27RoSLTpST8U',sha256:'test-hash',receiptPath:'test'});
+const mindGate={ensureDailyRead:({reason})=>receipt(reason),preflightMajorWork:i=>receipt(i.reason),status:()=>receipt('STATUS')};
+const bridge=createBridge({identity,mindGate,domainIntelligence:domains,now:()=> '2026-08-08T18:50:00.000Z',continuity:()=>({scope:'COMBINED / PAI PROJECT-FIRST'})});
+const invoke=(args)=>bridge.rpc({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'chief_turn',arguments:{userId:'tan',...args}}});
+let r=bridge.rpc({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'chief_resume',arguments:{userId:'tan'}}});assert.equal(r.result.structuredContent.result.revision,1);
+r=invoke({requestId:'cyber-red-1',expectedRevision:1,intentClass:'ANALYZE',message:'Red team PAI for prompt injection, tool misuse, memory poisoning and attack variants.'});
+let out=r.result.structuredContent.result;assert.equal(out.domainPolicy.routing.primaryDomain,'PAI_DOMAIN_CYBERSECURITY_ASSURANCE_V1');assert.equal(out.domainPolicy.cybersecurity.mode.mode,'ADVERSARIAL_COEVOLUTION');assert.equal(out.domainPolicy.cybersecurity.externalOffensiveAuthority,'NONE');assert.equal(out.domainPolicy.cybersecurity.simulation.judge,'SIMLAB_R7_DETERMINISTIC_ORACLE_REALITY_FINAL');
+r=invoke({requestId:'cyber-incident-1',expectedRevision:2,intentClass:'ANALYZE',message:'Active incident: PAI is under attack and a node may be compromised.'});
+out=r.result.structuredContent.result;assert.equal(out.domainPolicy.routing.primaryDomain,'PAI_DOMAIN_CYBERSECURITY_ASSURANCE_V1');assert.equal(out.domainPolicy.cybersecurity.mode.mode,'CONTAINMENT_FIRST');assert.equal(out.domainPolicy.cybersecurity.simulation.steps[1],'CONTAIN');assert.equal(out.domainPolicy.cybersecurity.externalOffensiveAuthority,'NONE');
+console.log('PASS Chief Cybersecurity Assurance binding: Cybersecurity is peer-routed, co-evolution is advisory, active incidents contain first, and external offensive authority remains NONE.');

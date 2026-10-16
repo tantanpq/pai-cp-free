@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pai://contracts/terminal-operation/r1",
+  "title": "PAI Governed Host Control Operation R1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["requestId","rootId","operation","effectClass"],
+  "properties": {
+    "requestId": {"type":"string","minLength":1,"maxLength":160},
+    "rootId": {"type":"string","minLength":1,"maxLength":160},
+    "sessionId": {"type":["string","null"],"maxLength":160},
+    "operation": {"enum":["SESSION_OPEN","SESSION_INPUT","SESSION_READ","SESSION_STATUS","SESSION_SNAPSHOT","SESSION_RESIZE","SESSION_CLOSE","SESSION_TAKEOVER","SESSION_RELEASE","SECRET_INPUT_REQUEST","OUTPUT_READ","RECEIPT_GET"]},
+    "effectClass": {"type":"string","minLength":1,"maxLength":128},
+    "ownerHostHint": {"type":["string","null"],"maxLength":160},
+    "shellClass": {"type":["string","null"],"maxLength":96},
+    "mutableScope": {"type":"string","maxLength":1000},
+    "requiredCapabilities": {"type":"array","maxItems":32,"items":{"type":"string","maxLength":96}},
+    "payload": {"type":"object"}
+  }
+}

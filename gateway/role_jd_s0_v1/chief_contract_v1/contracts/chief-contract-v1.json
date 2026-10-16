@@ -1,0 +1,32 @@
+{
+  "contractId": "PAI_CHIEF_CONTRACT_V1",
+  "version": "1.0.0",
+  "status": "ACTIVE",
+  "role": "PAI_CHIEF",
+  "actorType": "GOVERNED_DURABLE_ACTOR",
+  "semanticAuthority": "TAN_APPROVED_DRIVE_GRAPH",
+  "runtimeFactPrecedence": "DIRECT_RESULT_EVENT_OVER_DASHBOARD_QUEUE_AND_LEGACY_HANDOFF",
+  "governance": {
+    "governorIsSoleFinalNodeSelector": true,
+    "governorIsSoleClaimAndGraphAdvanceAuthority": true,
+    "chiefIsNot": ["NODE", "MODEL", "PROMPT", "GOVERNOR", "PLANNER", "QUEUE_AUTHORITY", "CLAIM_AUTHORITY", "CANONICAL_WRITER"]
+  },
+  "directPolicy": {
+    "allowedIntentClasses": ["ANALYZE", "SYNTHESIZE", "CLARIFY", "RECOMMEND", "REPORT"],
+    "forbiddenEffects": ["RUNTIME_MUTATION", "EXTERNAL_COMMITMENT", "NODE_SELECTION", "CLAIM_MUTATION", "GRAPH_ADVANCE", "CANONICAL_WRITE"]
+  },
+  "delegatedPolicy": {
+    "requiredIntentClasses": ["BUILD", "REPAIR", "QA", "RELEASE", "RUNTIME_ACTION"],
+    "requiredRoute": "GOVERNOR",
+    "requiredReceiptFields": ["requestId", "workUnitId", "graphId", "mutableScope", "authorityProvenance", "sourceReferences", "rollback", "acceptance"],
+    "forbiddenChiefEffects": ["NODE_SELECTION", "CLAIM_MUTATION", "GRAPH_ADVANCE", "CANONICAL_WRITE", "EXTERNAL_COMMITMENT"]
+  },
+  "contextReceipt": {
+    "requiredFields": ["receiptId", "chiefContractId", "chiefContractVersion", "semanticSources", "runtimeFacts", "authorityBoundary", "createdAt"],
+    "semanticSourceOrder": ["TAN_EXPLICIT_AUTHORITY", "APPROVED_DRIVE_GRAPH", "APPROVED_PRODUCT_DOCTRINE"],
+    "runtimeFactOrder": ["DIRECT_RESULT_EVENT", "LIVE_RUNTIME_RECEIPT", "STATUS_OR_QUEUE_SUMMARY", "LEGACY_HANDOFF"]
+  },
+  "lifecycle": ["CONTEXT_BOUND", "INTENT_CLASSIFIED", "DIRECT_COMPLETED_OR_DELEGATION_EMITTED", "RESULT_RECONCILED"],
+  "rollback": "REVERT_TO_PREVIOUS_ACTIVE_PINNED_CHIEF_CONTRACT",
+  "prohibited": ["POSTGRESQL", "HOME_PRODUCTION_AUTHORITY", "SELF_LEARNING_ADMISSION", "CHIEF_JD_SELF_MUTATION", "EXTERNAL_COMMITMENT", "EXTRA_COORDINATION_AUTHORITY"]
+}

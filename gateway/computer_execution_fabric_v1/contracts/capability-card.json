@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pai://contracts/host-capability-card/r1",
+  "title": "PAI Host Capability Card R1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["hostId","transportOnline","capabilities","observedAt"],
+  "properties": {
+    "hostId": {"type":"string","minLength":1,"maxLength":160},
+    "transportOnline": {"type":"boolean"},
+    "authorityEligible": {"type":"boolean"},
+    "hostControlEligible": {"type":"boolean"},
+    "capabilities": {"type":"array","items":{"type":"string"}},
+    "load": {"type":"number"},
+    "headroom": {"type":"number"},
+    "locality": {"type":["string","null"]},
+    "observedAt": {"type":"string","format":"date-time"},
+    "evidenceRefs": {"type":"array","items":{"type":"string"}}
+  }
+}

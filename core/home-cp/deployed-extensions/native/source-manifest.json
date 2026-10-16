@@ -1,0 +1,83 @@
+{
+  "schema": "pai.cp.native-source/v1",
+  "name": "PAI CP",
+  "source_kind": "ADDITIVE_EXTENSION_OF_HOME_CURRENT_WITH_ACCEPTED_OBSERVE_CORE",
+  "prior_web_manifest": "70a919e76ac65b5aa92f7825b6fa7f28ba7296ea406a6f8d394e37fd879b5f8a",
+  "files": [
+    {
+      "path": "actions-home/registry.mjs",
+      "sha256": "baa4469c51618efca9fa4b6a24d1641e472128b61e0483bdc1af65c5444a0218",
+      "bytes": 23381
+    },
+    {
+      "path": "actions-home/run-ps-file.mjs",
+      "sha256": "57d0dfa41ca2fb3e8cc7953ff0529504eb5cccac6e11f4fbe385f9220e1f78ac",
+      "bytes": 2822
+    },
+    {
+      "path": "config.mjs",
+      "sha256": "9a4ccdf8ae57a95591ae3b364c7aced3428ab3bb679d0e9454d4ee784670381e",
+      "bytes": 733
+    },
+    {
+      "path": "core/observe-act/adapters/windows.mjs",
+      "sha256": "8c688e2a887e73db793119bef4e23fd27dd2681e3f5dc097dfe7b00aeccfa0a4",
+      "bytes": 9163
+    },
+    {
+      "path": "core/observe-act/engine.mjs",
+      "sha256": "74b1157af561b2fc24b66081659c2545cac5b17e727f63dde41b0fe88f84aa80",
+      "bytes": 11139
+    },
+    {
+      "path": "core/primitives/primitives.mjs",
+      "sha256": "25d362d976fcdf0665fe113a472806ecfdc4759d7d4ae6aca13cb1e29d39a9db",
+      "bytes": 11194
+    },
+    {
+      "path": "core/proto/operations.mjs",
+      "sha256": "3b50ccc74a93ece9511fe0688c485224931b2342425b81b642dda0c02359ac57",
+      "bytes": 5383
+    },
+    {
+      "path": "core/proto/runner.mjs",
+      "sha256": "9f9e83a577e60208a34ee74a8910cf04297fae6083a8ac99ff7e71b0c4f5d6b3",
+      "bytes": 21825
+    },
+    {
+      "path": "core/site.mjs",
+      "sha256": "4b880e9623a2b720f511103e2a4556b2c5fa6a061c4ff5c69d55fd64bfc932d3",
+      "bytes": 1619
+    },
+    {
+      "path": "core/watch/evidence.mjs",
+      "sha256": "f9a6bb37fbf7480ccf1688b6ecf97ac2bd4128b0ef4fbcd90c51f242f36b35f7",
+      "bytes": 3550
+    },
+    {
+      "path": "native/PaiCpNative.cs",
+      "sha256": "c1db4958af1045f0ee9dfb188d070753016b48996d7676e5a4196fe6d1f5b948",
+      "bytes": 37070
+    },
+    {
+      "path": "native/backend.mjs",
+      "sha256": "8c9b7920e4ee7655e49ac7966ecb4596aa77af223ad30cefe6bc4a6caa0d3666",
+      "bytes": 13259
+    },
+    {
+      "path": "native/resource-lease.mjs",
+      "sha256": "b7467e8fc8f43ad6f8626a0610084126ef02fe625aa93b881697999785f71c94",
+      "bytes": 1671
+    },
+    {
+      "path": "native-registry.mjs",
+      "sha256": "17c7383412facdf1c230ee005d6f41bcc4185749b922443d9b68240c2c35a308",
+      "bytes": 4194
+    },
+    {
+      "path": "proto/run-action.mjs",
+      "sha256": "a95ea4baac433dda4d1f65ad10eaa809cab2245780dfad5a13d6c475cc875017",
+      "bytes": 1101
+    }
+  ]
+}

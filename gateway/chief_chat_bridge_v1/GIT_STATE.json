@@ -1,0 +1,6 @@
+{
+  "schema": "pai.git-state.v0",
+  "base_commit": "ba3a70ce65b1f6eb42b52ccb2ddc0d6731b32fb6",
+  "worktree": "DIRTY",
+  "porcelain": "M note.txt"
+}
