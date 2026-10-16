@@ -11,13 +11,13 @@ ChatGPT and want those agents to do verified things in real apps.
 Give your agent this instruction:
 
 ```text
-Set up PAI CP for me: clone https://github.com/tantanpq/pai-cp.git into ./pai-cp, then read and follow ./pai-cp/AGENT_INSTALL.md exactly.
+Set up PAI CP for me: clone https://github.com/tantanpq/pai-cp-free.git into ./pai-cp-free, then read and follow ./pai-cp-free/AGENT_INSTALL.md exactly.
 ```
 
 Or use the manual three-command path:
 
 ```sh
-git clone https://github.com/tantanpq/pai-cp.git ./pai-cp && cd ./pai-cp
+git clone https://github.com/tantanpq/pai-cp-free.git ./pai-cp-free && cd ./pai-cp-free
 npm install
 node tools/doctor.mjs && node tools/quickstart.mjs
 ```
@@ -184,7 +184,7 @@ Its earlier 7/9 seed result predates the fixes recorded in
 
 ## Support
 
-[GitHub Issues](https://github.com/tantanpq/pai-cp/issues), best effort,
+[GitHub Issues](https://github.com/tantanpq/pai-cp-free/issues), best effort,
 no SLA. Include the doctor result line and relevant evidence file names;
 do not paste credentials or cookies.
 
