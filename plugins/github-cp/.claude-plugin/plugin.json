@@ -1,0 +1,10 @@
+{
+  "name": "github-cp",
+  "version": "1.0.0",
+  "description": "Sample PAI CP pack for GitHub. Lets your own AI agent check your GitHub session, create issues, and post issue and discussion comments through the local PAI CP control plane running on your machine: one strict JSON command contract, session gate before every run, idempotency keys required on writes, and an evidence record for every run. Requires the pai-cp-free package installed locally (Node >= 22.5) and your own Chrome signed in to GitHub. Runs entirely on your machine, with your account.",
+  "author": { "name": "Tan Ho" },
+  "homepage": "https://github.com/tantanpq/pai-cp-free",
+  "repository": "https://github.com/tantanpq/pai-cp-free",
+  "license": "PolyForm-Shield-1.0.0",
+  "keywords": ["github", "control-plane", "automation", "pai-cp"]
+}

@@ -106,6 +106,7 @@ The subset is defined by these paths, with directories included recursively:
 - `README.md`, `QUICKSTART.md`, `AGENT_INSTALL.md`, `LICENSE`, `CHANGELOG.md`
 - `PACKAGE_MANIFEST.md`, `package.json`, `package-lock.json`, `install.mjs`
 - `.github/`
+- `.claude-plugin/`, `plugins/` (added 2026-10-16 — Claude Code marketplace channel; distribution metadata + guidance only, pack runtime code stays single-sourced under `core/`)
 - `core/browser-control-plane-core/`, `core/github-cp/`, `core/rea-cp/`
 - `core/msi-cp/`, `core/home-cp/`
 - `seed/`, `gateway/`, `tools/`
@@ -115,6 +116,8 @@ The subset is defined by these paths, with directories included recursively:
 - `core/chatgpt-cp/`, `core/grok-cp/`, `core/suno-cp/`
 - `addons/`, `docs/`
 - `TIERS.md`, `PRICING_DRAFT_INTERNAL.md`
+
+**Marketplace addendum (2026-10-16):** the public subset also ships `.claude-plugin/marketplace.json` (marketplace slug `pai-cp`) and `plugins/github-cp/` (plugin slug `github-cp`). Slugs are immutable once published; renames go through the marketplace `renames` map. The plugin wrapper contains guidance only — no pack code copies.
 
 The excluded tier/pricing files are internal drafts, not approved prices.
 
@@ -161,7 +164,7 @@ entries remain unchanged.
 | `install.mjs` | `92cc2e7fde51a421f68fb1303d03adc3ec27b4ff709c0ee3bf6650f6239033d4` |
 | `AGENT_INSTALL.md` | `f0d256b8c2401dbb20fedfe0da9bb65f6c7f16ca528726771ed4206898a4dba2` |
 | `QUICKSTART.md` | `37578d935dc470462b95daf3b949b25ce8a156e89d1de09fe8ded684adb0543c` |
-| `CHANGELOG.md` | `ce3f95252c38a807e32fb960739e88be33cf2f39af2c7d5246f5a39aa5953ced` |
+| `CHANGELOG.md` | `5d0c7f6d2376cd48c3605a9fc4cfad458cd5c54eefd6d48078d48f4d44cb42de` |
 | `TIERS.md` | `0c4c75fec07d8edad0836b679553106994971df942979e612c130584ccb5dce9` |
 | `PRICING_DRAFT_INTERNAL.md` | `8c17290bfd539beb61f97ff40871f0fee0c0fa0ef96c6d3a2e0e3b84a212352b` |
 | `core/browser-control-plane-core/proto/lease-local.mjs` | `20fe544a4b807d7b0d1180aa259c743282a286d503126e6ac33662e7e996643e` |
