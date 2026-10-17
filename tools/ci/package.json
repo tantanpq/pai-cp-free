@@ -1,0 +1,7 @@
+{
+  "name": "pai-cp-ci-tools",
+  "private": true,
+  "dependencies": {
+    "ajv": "8.17.1"
+  }
+}

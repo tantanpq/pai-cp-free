@@ -1,0 +1,14 @@
+[
+  {
+    "path": "README.md",
+    "reason": "Public-side document maintained in this repo; its PACKAGE_MANIFEST hash row records the SOURCE package bytes at packaging time. Public bytes intentionally differ under the pointer-rewrite rule recorded in the source manifest (2026-10-16) and later public-side edits (marketplace channel, 2026-10-16)."
+  },
+  {
+    "path": "AGENT_INSTALL.md",
+    "reason": "Public-side document maintained in this repo; its PACKAGE_MANIFEST hash row records the SOURCE package bytes at packaging time. Public bytes intentionally differ under the pointer-rewrite rule recorded in the source manifest (2026-10-16) and later public-side edits (marketplace channel, 2026-10-16)."
+  },
+  {
+    "path": "QUICKSTART.md",
+    "reason": "Public-side document maintained in this repo; its PACKAGE_MANIFEST hash row records the SOURCE package bytes at packaging time. Public bytes intentionally differ under the pointer-rewrite rule recorded in the source manifest (2026-10-16) and later public-side edits (marketplace channel, 2026-10-16)."
+  }
+]

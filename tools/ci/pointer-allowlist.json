@@ -1,0 +1,7 @@
+[
+  {
+    "file": "PACKAGE_MANIFEST.md",
+    "pattern": "^- \\*\\*Packaged:\\*\\* 2026-10-15 · \\*\\*Repo:\\*\\* `tantanpq\\/pai-cp` \\(private\\)$",
+    "reason": "Historical provenance of the source package; not an installation or support action pointer."
+  }
+]
