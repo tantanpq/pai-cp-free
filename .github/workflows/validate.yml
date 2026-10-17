@@ -1,0 +1,33 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Secret-pattern scan
+        run: node tools/ci/secret-scan.mjs
+      - name: Public subset gates
+        run: node tools/ci/subset-gates.mjs
+      - name: Plugin manifest validation
+        run: |
+          npm install --prefix tools/ci --no-audit --no-fund
+          node tools/ci/plugin-validate.mjs
+      - name: Description and behavior pre-checks
+        run: node tools/ci/description-behavior.mjs --out description-behavior-verdict.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: description-behavior-verdict
+          path: description-behavior-verdict.json
