@@ -4,6 +4,17 @@ Changes are recorded in Keep a Changelog style.
 
 ## [Unreleased]
 
+### Added
+
+- Claude Code marketplace channel (2026-10-16): `.claude-plugin/marketplace.json`
+  (marketplace `pai-cp`) and `plugins/github-cp/` — a plugin wrapper whose skill
+  teaches an agent to drive the canonical GitHub sample pack in
+  `core/github-cp/`. The pack code is not duplicated inside the plugin.
+- CI validation workflow (`.github/workflows/validate.yml`): secret-pattern
+  scan, subset gates (excluded paths absent, LICENSE, manifest hash rows,
+  action-pointer rule), plugin manifest schema validation, and
+  description-vs-behavior pre-checks on every push and pull request.
+
 ### Fixed
 
 - Documentation only (no code changes), from the independent agent-first

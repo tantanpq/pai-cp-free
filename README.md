@@ -31,6 +31,21 @@ See [QUICKSTART.md](QUICKSTART.md) for Chrome setup and a first GitHub action.
 `install.mjs` runs dependency setup, doctor, and quickstart and prints a
 `PAI_CP_INSTALL_RESULT` verdict.
 
+### Or add the GitHub sample as a Claude Code plugin
+
+This repository is also a Claude Code plugin marketplace. In Claude Code:
+
+```text
+/plugin marketplace add tantanpq/pai-cp-free
+/plugin install github-cp@pai-cp
+```
+
+The `github-cp` plugin ships a skill that teaches your agent to drive the
+GitHub sample pack in `core/github-cp/` — the same pack, through the same
+local install above. The plugin is guidance and discovery only: it does not
+replace the package install, and the control-plane code is not duplicated
+inside the plugin.
+
 ## How it works
 
 Each CP CLI reads one JSON command from stdin and prints exactly one JSON

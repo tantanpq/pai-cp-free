@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "pai-cp",
+  "description": "PAI CP free tier: local control planes that let your own AI agent operate your own apps through one strict JSON command contract, with session gates, idempotency, and evidence for every run.",
+  "owner": { "name": "Tan Ho" },
+  "plugins": [
+    {
+      "name": "github-cp",
+      "description": "Sample PAI CP pack for GitHub. Lets your own AI agent check your GitHub session, create issues, and post issue and discussion comments through the local PAI CP control plane running on your machine: one strict JSON command contract, session gate before every run, idempotency keys required on writes, and an evidence record for every run. Requires the pai-cp-free package installed locally (Node >= 22.5) and your own Chrome signed in to GitHub. Runs entirely on your machine, with your account.",
+      "author": { "name": "Tan Ho" },
+      "category": "productivity",
+      "source": "./plugins/github-cp",
+      "homepage": "https://github.com/tantanpq/pai-cp-free",
+      "license": "PolyForm-Shield-1.0.0",
+      "keywords": ["github", "control-plane", "automation", "pai-cp"]
+    }
+  ]
+}
