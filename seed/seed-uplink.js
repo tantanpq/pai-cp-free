@@ -86,6 +86,7 @@ function prepareGovernedRequest(code) {
     source_refs: [...seed.sourceRefs],
     requested_mode: seed.requestedMode,
     effect_class: 'CANDIDATE_DRAFT',
+    seed_code: code.trim(),
     // This is an explicit local choice. The Governor rejects it if Codex is
     // unavailable; it must never silently fall back to another provider.
     selected_provider_tool: 'CODEX_HOME',
@@ -94,12 +95,23 @@ function prepareGovernedRequest(code) {
   });
 }
 
-async function importSeed({ code, confirm, submit }) {
+async function importSeed({ code, confirm, submit, readResult }) {
   if (confirm !== true) return Object.freeze({ status: 'NEEDS_LOCAL_USER_CONFIRMATION' });
   if (typeof submit !== 'function') throw new Error('SEED_SUBMITTER_REQUIRED');
   const request = prepareGovernedRequest(code);
-  const result = await submit(request);
-  return Object.freeze({ status: 'SUBMITTED_TO_EXISTING_GOVERNOR', request, result });
+  let result;
+  try { result = await submit(request); }
+  catch (_) { return Object.freeze({status:'SUBMISSION_UNKNOWN',accepted:false,completed:false,result_verified:false,reason:'TRANSPORT_FAILED_NO_RESUBMIT',request}); }
+  const state = require('./submission-state').classify(result, request);
+  if (state.accepted && state.receipt.lifecycle_state === 'COMPLETED' && typeof readResult === 'function') {
+    try {
+      const readback = await readResult(state.receipt.pai_task_id);
+      const proof = require('./submission-state').verifyResult(readback, state.receipt.pai_task_id);
+      if (proof.verified) return Object.freeze({ ...state, status:'COMPLETED_WITH_RESULT', completed:true, result_verified:true, request, result, readback });
+      return Object.freeze({ ...state, result_read_reason:proof.reason, request, result, readback });
+    } catch (_) { return Object.freeze({ ...state, result_read_reason:'RESULT_READ_FAILED_NO_RESUBMIT', request, result }); }
+  }
+  return Object.freeze({ ...state, request, result });
 }
 
 module.exports = Object.freeze({ SCHEMA, PREFIX, canonical, fingerprint, normalize, encode, decode, prepareGovernedRequest, importSeed });

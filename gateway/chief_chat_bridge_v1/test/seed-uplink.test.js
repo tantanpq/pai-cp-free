@@ -46,7 +46,8 @@ test('an import requires explicit local confirmation and keeps the submission in
   assert.deepEqual(await uplink.importSeed({ code, confirm: false, submit: () => assert.fail('must not submit') }), { status: 'NEEDS_LOCAL_USER_CONFIRMATION' });
   let received;
   const imported = await uplink.importSeed({ code, confirm: true, submit: async request => { received = request; return { admission: 'PENDING' }; } });
-  assert.equal(imported.status, 'SUBMITTED_TO_EXISTING_GOVERNOR');
+  assert.equal(imported.status, 'SUBMISSION_RECEIVED');
+  assert.equal(imported.accepted, false);
   assert.equal(received.idempotency_key, imported.request.idempotency_key);
 });
 test('CLI makes user confirmation explicit and sends only the governed request', async () => {
