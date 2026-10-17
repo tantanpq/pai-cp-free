@@ -1,3 +1,5 @@
+> R9: [TaskBox terminal readback](TASKBOX.md) adds status/result/wait using existing read tools, preserves task identity without resubmission, and resolves stale READY admission/replay receipts from a matching canonical Result.
+
 > Submission-state update: transport success is not admission or business completion. The client now preserves unknown outcomes without automatic retry, rejects business errors under HTTP200, includes the original Seed code for gateway validation, and requires a matching successful terminal Result before reporting COMPLETED_WITH_RESULT. Existing confirmation and authority checks remain. The source capsule is a historical packaging record; this patch makes no clean-machine or live deployment claim. Tests: `node --test seed/submission-state.test.cjs seed/cli-response.test.cjs gateway/chief_chat_bridge_v1/test/seed-uplink.test.js`.
 
 # Seed uplink kit — canonical set

@@ -103,7 +103,9 @@ async function importSeed({ code, confirm, submit, readResult }) {
   try { result = await submit(request); }
   catch (_) { return Object.freeze({status:'SUBMISSION_UNKNOWN',accepted:false,completed:false,result_verified:false,reason:'TRANSPORT_FAILED_NO_RESUBMIT',request}); }
   const state = require('./submission-state').classify(result, request);
-  if (state.accepted && state.receipt.lifecycle_state === 'COMPLETED' && typeof readResult === 'function') {
+  // Admission/replay receipts can retain READY after canonical work finishes.
+  // Query the existing Result once; never resubmit to refresh a cached receipt.
+  if (state.accepted && typeof readResult === 'function') {
     try {
       const readback = await readResult(state.receipt.pai_task_id);
       const proof = require('./submission-state').verifyResult(readback, state.receipt.pai_task_id);
