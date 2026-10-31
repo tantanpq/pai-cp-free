@@ -6,6 +6,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 const path = require('node:path');
+const os = require('node:os');
 const fs = require('node:fs');
 
 // Resolve relative to CORE/chief_chat_bridge_v1/src
@@ -105,7 +106,7 @@ async function run() {
   // ── 3. Path Validation ───────────────────────────────────────────────
   console.log('── Path Validation ──');
   assert(isPathWithinRoots('C:\\ProgramData\\PAI_RUNTIME\\test.json', ALLOWED_READ_ROOTS), 'Read: PAI_RUNTIME allowed');
-  assert(isPathWithinRoots('C:\\Users\\<user>\\My Drive\\PAI_PROJECT\\CORE\\test.js', ALLOWED_READ_ROOTS), 'Read: PAI_PROJECT allowed');
+  assert(isPathWithinRoots(path.join(os.homedir(), 'My Drive', 'PAI_PROJECT', 'CORE', 'test.js'), ALLOWED_READ_ROOTS), 'Read: PAI_PROJECT allowed');
   assert(!isPathWithinRoots('C:\\Windows\\System32\\config\\SAM', ALLOWED_READ_ROOTS), 'Read: System32 denied');
   assert(!isPathWithinRoots('D:\\other\\path', ALLOWED_READ_ROOTS), 'Read: D:\\ denied');
 

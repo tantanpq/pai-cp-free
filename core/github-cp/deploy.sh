@@ -22,7 +22,7 @@ MSI_DIR='C:\temp\github-cp'
 SSH_OPTS=(
   -o ProxyCommand="nc -X connect -x hatch-egress-proxy:3130 %h %p"
   -o ConnectTimeout=20
-  -o UserKnownHostsFile=$HOME/.ssh/known_hosts
+  -o "UserKnownHostsFile=\"$HOME/.ssh/known_hosts\""
   -i "$HOME/.ssh/id_ed25519"
 )
 FILES=(
@@ -126,7 +126,7 @@ log "Bước tiếp: dry-run theo README.md §6 (prerequisite: Tân login github
 #      base64 /tmp/github-cp.tar.gz > /tmp/github-cp.b64
 # 3) SSH sang MSI (template từ ~/TOOLS.md):
 #      ssh -o ProxyCommand="nc -X connect -x hatch-egress-proxy:3130 %h %p" \
-#          -o ConnectTimeout=20 -o UserKnownHostsFile=$HOME/.ssh/known_hosts \
+#          -o ConnectTimeout=20 -o "UserKnownHostsFile=\"$HOME/.ssh/known_hosts\"" \
 #          -i ~/.ssh/id_ed25519 user@<CP_MSI_HOST>
 # 4) Trên PowerShell của MSI, tạo thư mục:
 #      New-Item -ItemType Directory -Force 'C:\temp\github-cp'

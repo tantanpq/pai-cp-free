@@ -21,7 +21,7 @@ MSI_DIR='C:\temp\rea-cp'
 SSH_OPTS=(
   -o ProxyCommand="nc -X connect -x hatch-egress-proxy:3130 %h %p"
   -o ConnectTimeout=20
-  -o UserKnownHostsFile=$HOME/.ssh/known_hosts
+  -o "UserKnownHostsFile=\"$HOME/.ssh/known_hosts\""
   -i "$HOME/.ssh/id_ed25519"
 )
 FILES=(
@@ -125,7 +125,7 @@ log "Bước tiếp: dry-run sáng mai theo README.md §6 (session.check → cha
 #      base64 /tmp/rea-cp.tar.gz > /tmp/rea-cp.b64
 # 3) SSH sang MSI (template từ ~/TOOLS.md):
 #      ssh -o ProxyCommand="nc -X connect -x hatch-egress-proxy:3130 %h %p" \
-#          -o ConnectTimeout=20 -o UserKnownHostsFile=$HOME/.ssh/known_hosts \
+#          -o ConnectTimeout=20 -o "UserKnownHostsFile=\"$HOME/.ssh/known_hosts\"" \
 #          -i ~/.ssh/id_ed25519 user@<CP_MSI_HOST>
 # 4) Trên PowerShell của MSI, tạo thư mục:
 #      New-Item -ItemType Directory -Force 'C:\temp\rea-cp'

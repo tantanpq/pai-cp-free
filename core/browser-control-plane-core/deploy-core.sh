@@ -17,7 +17,7 @@ MSI_DIR='C:\temp\browser-control-plane-core'
 SSH_OPTS=(
   -o ProxyCommand="nc -X connect -x hatch-egress-proxy:3130 %h %p"
   -o ConnectTimeout=20
-  -o UserKnownHostsFile=$HOME/.ssh/known_hosts
+  -o "UserKnownHostsFile=\"$HOME/.ssh/known_hosts\""
   -i "$HOME/.ssh/id_ed25519"
 )
 FILES=(
