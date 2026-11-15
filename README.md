@@ -139,9 +139,19 @@ Prompt evidence is absent: prompt tools are not exposed and direct calls to them
 `pai_resume` returns continuity metadata (degraded when its source is unavailable); it does not require these three services.
 The semantic catalog is empty, and the full upstream server is not included.
 
-The gateway defaults to `GOVERNED_RW`; select `READ_ONLY` for untrusted
-callers. In v1 it does not strictly enforce per-tool argument schemas.
-The RW profiles expose execution capabilities; choose a profile deliberately.
+The standalone gateway defaults to `READ_ONLY`, exposing `chief_resume` and
+`chief_status`. Health and discovery work without a bearer; every tool call
+requires `Authorization: Bearer <configured-value>`. Configure either
+`CHIEF_MCP_BEARER_TOKEN` or `CHIEF_MCP_BEARER_TOKEN_FILE`, never both. Generate
+at least 32 random bytes and restrict token-file access to the service owner;
+keep credentials out of source control, URLs, and command arguments.
+
+Writes require an explicit `CHIEF_MCP_PUBLIC_PROFILE=GOVERNED_RW` or
+`FEDERATION_RW` and a configured bearer. Execution tools such as
+`pai_action_run` additionally require `CHIEF_MCP_ALLOW_EXEC=1`; a write profile
+alone does not enable execution. In v1, per-tool argument schemas are not
+strictly enforced. See the [gateway quick run](QUICKSTART.md#gateway-quick-run)
+and [security boundary](gateway/SECURITY_BOUNDARY.md) for setup and restrictions.
 
 Seeds remain candidate-only until a local human confirms submission.
 The SHA-256 fingerprint detects tampering; it does not replace that review.

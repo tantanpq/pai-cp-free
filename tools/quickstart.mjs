@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import net from 'node:net';
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { spawn, spawnSync } from 'node:child_process';
@@ -172,51 +173,74 @@ try {
   progress(step, `seed demo OK (fingerprint ${request.seed_receipt.fingerprint.slice(0, 12)}...)`);
 
   step = 'gateway-smoke';
-  progress(step, 'starting an isolated gateway and checking MCP tools');
-  const bridgePort = await freePort();
-  let livePort = await freePort();
-  while (livePort === bridgePort) livePort = await freePort();
-  const server = launch(process.execPath, [path.join(root, 'gateway/server.standalone.cjs')], {
-    cwd: root, stdio: 'pipe',
-    env: { ...process.env, PORT: String(bridgePort), CHIEF_LIVE_PORT: String(livePort),
-      CHIEF_BRIDGE_DB_PATH: path.join(tmp, 'bridge.sqlite'), CHIEF_BRIDGE_ALLOWED_ORIGINS: 'http://127.0.0.1',
-      // The gateway defaults an empty action into provider dispatch. Keep this
-      // malformed smoke request from invoking the user's installed AI CLIs.
-      PAI_AGY_CLI_PATH: path.join(tmp, 'unconfigured-agy'),
-      PAI_GROK_CLI_PATH: path.join(tmp, 'unconfigured-grok') },
-  });
-  try {
-    const base = `http://127.0.0.1:${bridgePort}`;
-    await pollJson(`${base}/health`, server, body => assert.equal(body.status, 'READY'));
-    let sessionId;
-    async function post(body, ignoreBody = false) {
-      const response = await fetch(`${base}/mcp`, {
-        method: 'POST', headers: { 'content-type': 'application/json', ...(sessionId ? { 'mcp-session-id': sessionId } : {}) },
-        body: JSON.stringify(body), signal: AbortSignal.timeout(10000),
-      }).catch(error => { throw new Error(`${body.method}${body.params?.name ? ` ${body.params.name}` : ''}: ${error.message}`); });
-      if (body.method === 'initialize') sessionId = response.headers.get('mcp-session-id');
-      if (ignoreBody) { await response.arrayBuffer(); return; }
-      assert.equal(response.status, 200, `${body.method}: HTTP ${response.status}`);
-      return response.json();
+  progress(step, 'checking isolated gateways with a generated fixture bearer');
+  // Never inherit operator credentials, profiles, policies, or service endpoints.
+  const gatewayEnv = Object.fromEntries(['PATH', 'SystemRoot', 'WINDIR', 'ComSpec', 'PATHEXT']
+    .filter(key => process.env[key]).map(key => [key, process.env[key]]));
+  const bearer = randomBytes(32).toString('hex');
+  for (const [mode, config, profile, allowExec] of [
+    ['default', {}, 'READ_ONLY', false],
+    ['write-no-exec', { CHIEF_MCP_PUBLIC_PROFILE: 'GOVERNED_RW' }, 'GOVERNED_RW', false],
+    ['write-exec', { CHIEF_MCP_PUBLIC_PROFILE: 'GOVERNED_RW', CHIEF_MCP_ALLOW_EXEC: '1' }, 'GOVERNED_RW', true],
+  ]) {
+    const bridgePort = await freePort();
+    let livePort = await freePort();
+    while (livePort === bridgePort) livePort = await freePort();
+    const server = launch(process.execPath, [path.join(root, 'gateway/server.standalone.cjs')], {
+      cwd: root, stdio: 'pipe',
+      env: { ...gatewayEnv, ...config, PORT: String(bridgePort), CHIEF_LIVE_PORT: String(livePort),
+        CHIEF_MCP_BEARER_TOKEN: bearer, PAI_GATEWAY_DATA: path.join(tmp, mode),
+        CHIEF_BRIDGE_DB_PATH: path.join(tmp, mode, 'bridge.sqlite'),
+        // Execution visibility is tested without invoking any execution tool.
+        PAI_AGY_CLI_PATH: path.join(tmp, 'unconfigured-agy'),
+        PAI_GROK_CLI_PATH: path.join(tmp, 'unconfigured-grok') },
+    });
+    try {
+      const base = `http://127.0.0.1:${bridgePort}`;
+      await pollJson(`${base}/health`, server, body => {
+        assert.equal(body.status, 'READY');
+        assert.equal(body.profile, profile);
+      });
+      let sessionId;
+      async function post(body, { authenticated = true, expectedStatus = 200, ignoreBody = false } = {}) {
+        const response = await fetch(`${base}/mcp`, {
+          method: 'POST', headers: { 'content-type': 'application/json',
+            ...(authenticated ? { authorization: `Bearer ${bearer}` } : {}),
+            ...(sessionId ? { 'mcp-session-id': sessionId } : {}) },
+          body: JSON.stringify(body), signal: AbortSignal.timeout(10000),
+        }).catch(error => { throw new Error(`${body.method}${body.params?.name ? ` ${body.params.name}` : ''}: ${error.message}`); });
+        if (body.method === 'initialize') sessionId = response.headers.get('mcp-session-id');
+        if (ignoreBody) { await response.arrayBuffer(); return; }
+        assert.equal(response.status, expectedStatus, `${mode} ${body.method}: HTTP ${response.status}`);
+        return response.json();
+      }
+      const initialized = await post({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+        protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'pai-cp-quickstart', version: '1.0.0' },
+      } }, { authenticated: false });
+      assert(initialized.result, 'initialize must return result');
+      await post({ jsonrpc: '2.0', method: 'notifications/initialized' }, { ignoreBody: true }).catch(() => {});
+      const listed = await post({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, { authenticated: false });
+      const names = listed.result?.tools?.map(tool => tool.name) || [];
+      assert(names.includes('chief_status'), 'chief_status missing');
+      assert.equal(names.includes('pai_action_run'), allowExec, `${mode}: execution visibility must match opt-in`);
+      if (profile === 'READ_ONLY') assert.deepEqual([...names].sort(), ['chief_resume', 'chief_status']);
+      await post({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'chief_status', arguments: {} } },
+        { authenticated: false, expectedStatus: 401 });
+      const status = await post({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'chief_status', arguments: {} } });
+      assert(status.result, 'chief_status must return result');
+      const refused = await post({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'pai_cp_no_such_tool', arguments: {} } });
+      assert(refused.error && typeof refused.error === 'object', 'unknown tool must return a JSON-RPC error');
+      if (!allowExec) {
+        const denied = await post({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'pai_action_run', arguments: {} } });
+        assert.equal(denied.error?.data?.code, 'BRIDGE_TOOL_DENIED', 'execution must be denied without opt-in');
+      }
+      const health = await fetch(`${base}/health`, { signal: AbortSignal.timeout(2000) });
+      assert(health.ok, `health HTTP ${health.status}`);
+      assert.equal((await health.json()).status, 'READY');
+      progress(step, `PASS ${mode}: ${profile}, public discovery, unauthenticated 401, authenticated chief_status, execution visibility, unknown-tool refusal, and health`);
+    } finally {
+      await stop(server);
     }
-    const initialized = await post({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
-      protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'pai-cp-quickstart', version: '1.0.0' },
-    } });
-    assert(initialized.result, 'initialize must return result');
-    await post({ jsonrpc: '2.0', method: 'notifications/initialized' }, true).catch(() => {});
-    const listed = await post({ jsonrpc: '2.0', id: 2, method: 'tools/list' });
-    const names = listed.result?.tools?.map(tool => tool.name) || [];
-    assert(names.includes('pai_action_run') && names.includes('chief_status'), 'required MCP tools missing');
-    const status = await post({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'chief_status', arguments: {} } });
-    assert(status.result, 'chief_status must return result');
-    const refused = await post({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'pai_cp_no_such_tool', arguments: {} } });
-    assert(refused.error && typeof refused.error === 'object', 'unknown tool must return a JSON-RPC error');
-    const health = await fetch(`${base}/health`, { signal: AbortSignal.timeout(2000) });
-    assert(health.ok, `health HTTP ${health.status}`);
-    assert.equal((await health.json()).status, 'READY');
-    progress(step, 'PASS initialize, tools/list, chief_status, unknown-tool refusal, and final health');
-  } finally {
-    await stop(server);
   }
 
   step = 'browser-sample';
