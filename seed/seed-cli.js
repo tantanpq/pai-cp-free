@@ -5,17 +5,19 @@ const fs = require('node:fs');
 const http = require('node:http');
 const { URL } = require('node:url');
 const uplink = require('./seed-uplink');
+const { readBearerToken } = require('../gateway/standalone-security.cjs');
 
 function usage() {
   return 'Usage: node seed-cli.js <encode|decode|request|submit|status|result|wait> <value-or-task-id> [--confirm] [--timeout-ms 60000] [--endpoint http://127.0.0.1:8787/mcp]';
 }
 function print(value) { process.stdout.write(`${JSON.stringify(value, null, 2)}\n`); }
-function postJson(endpoint, payload, { timeoutMs = 30000 } = {}) {
+function postJson(endpoint, payload, { timeoutMs = 30000, env = process.env } = {}) {
   const url = new URL(endpoint);
   if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) throw new Error('SEED_ENDPOINT_MUST_BE_LOOPBACK_HTTP');
   const body = JSON.stringify(payload);
+  const token = readBearerToken(env);
   return new Promise((resolve, reject) => {
-    const request = http.request({ hostname: url.hostname.replace(/^\[|\]$/g, ''), port: url.port || 80, path: `${url.pathname}${url.search}`, method: 'POST', headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) } }, response => {
+    const request = http.request({ hostname: url.hostname.replace(/^\[|\]$/g, ''), port: url.port || 80, path: `${url.pathname}${url.search}`, method: 'POST', headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body), ...(token === undefined ? {} : { authorization: `Bearer ${token}` }) } }, response => {
       let raw = '', bytes = 0; response.setEncoding('utf8'); response.on('error', reject); response.on('data', chunk => { bytes += Buffer.byteLength(chunk); if (bytes > 1024*1024) { response.destroy(new Error('SEED_GATEWAY_RESPONSE_LIMIT')); return; } raw += chunk; }); response.on('end', () => {
         if (response.statusCode !== 200) return reject(new Error(`SEED_GATEWAY_HTTP_${response.statusCode}`));
         try { resolve(JSON.parse(raw)); } catch (_) { reject(new Error('SEED_GATEWAY_INVALID_JSON')); }

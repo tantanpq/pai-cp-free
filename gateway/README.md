@@ -74,18 +74,19 @@ runtime + mind; phase 3 (to be weighed): the pai-chief/run-loop chain.
 
 ```bash
 cd gateway
-node server.standalone.cjs            # 127.0.0.1:8787, profile GOVERNED_RW
+node server.standalone.cjs            # 127.0.0.1:8787, profile READ_ONLY; discovery only without a token
 PORT=8899 PAI_GATEWAY_CANARY=1 CHIEF_BRIDGE_DB_PATH=/path/to/isolated.sqlite node server.standalone.cjs
 ```
 
 Requires Node ≥ 22.5 (`node:sqlite`). Configuration is env-only — the full
-list is in the header of `server.standalone.cjs`. State lives under
-`PAI_GATEWAY_DATA` (default `~/.pai-chief-gateway`). There is no HTTP auth
-by design: the security boundary is loopback binding + the bridge's own
-identity/session binding, rate limiting and revision fencing, exactly as
-upstream. Do not expose the port beyond loopback/a tunnel you control.
-`pai_action_run` executes real commands on the host through the fabric —
-treat running this server as handing the terminal to whoever can reach it.
+list is in the header of `server.standalone.cjs` and the
+[standalone security boundary](SECURITY_BOUNDARY.md). State lives under
+`PAI_GATEWAY_DATA` (default `~/.pai-chief-gateway`). All tool calls require a
+configured bearer token. The default profile exposes only `chief_resume`
+and `chief_status`; write profiles and execution require explicit opt-ins.
+Host and Origin policies apply even on loopback. See the boundary document
+for token-file setup, internal-client migration, supported transports,
+threat model, verification commands, residual risks, and rollback.
 
 ## Verification performed for this packaging (2026-10-15)
 
@@ -142,7 +143,7 @@ upstream server is not included.
 - **Empty:** semantic catalog; no semantic entries are supplied.
 
 V1 does not strictly enforce per-tool argument schemas. Operators should
-use `READ_ONLY` for untrusted callers; the default is `GOVERNED_RW`.
+use the default `READ_ONLY` profile for untrusted callers.
 
 The earlier 7/9 seed result above is a historical packaging record. After
 the executor-pin validation fixes, the bundled suite now passes **9/9**.

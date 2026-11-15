@@ -151,7 +151,7 @@ entries remain unchanged.
 | `core/suno-cp/config.mjs` | `4cc1dda532f3aea2ef381d434335b4c9b3c4ceefc30df43ce20a1ed46b18bd8f` |
 | `README.md` | `c3d9a0379fe3a6844b49e695336585fc6358e035cbf1ce422b56c2caf441d6e7` |
 | `addons/pai-cp-builder/README.md` | `32a857d3d1831e818e67d69c8a33ca8526e23c7b530365f4b56f532b06266fde` |
-| `gateway/README.md` | `f3d15faefc9e75799853343a8d63c23d7819cd059110e64b71f54915c030ca93` |
+| `gateway/README.md` | `60e8843162066cf700b95f1cdc67e3e92ce19618661460d1bbbce494b053dee4` |
 | `tools/doctor.mjs` | `373782b45ce37b8daca8c11f519ba7c2983eaa0236d4e84d1b1f670a1c940279` |
 
 ### Brand-new sellable-pass files: SHA-256

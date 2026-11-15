@@ -52,6 +52,11 @@ function createPowerShellPipeAdapter(options = {}) {
       : `--require "${nodeGuardPath}"`;
 
     const pythonPath = [__dirname, env?.PYTHONPATH, process.env.PYTHONPATH].filter(Boolean).join(path.delimiter);
+    const childEnv = { ...process.env, ...(env || {}) };
+    for (const key of Object.keys(childEnv)) {
+      const name = process.platform === 'win32' ? key.toUpperCase() : key;
+      if (name === 'CHIEF_MCP_BEARER_TOKEN' || name === 'CHIEF_MCP_BEARER_TOKEN_FILE') delete childEnv[key];
+    }
 
     child = spawn(executable, [
       '-NoLogo',
@@ -62,8 +67,7 @@ function createPowerShellPipeAdapter(options = {}) {
     ], {
       cwd: cwd || process.cwd(),
       env: {
-        ...process.env,
-        ...(env || {}),
+        ...childEnv,
         PAI_CANDIDATE_SCOPE: candidateScope,
         NODE_OPTIONS: nodeOptions,
         PYTHONPATH: pythonPath,
