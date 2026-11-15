@@ -36,11 +36,14 @@
  *
  * Configuration is env-only; no machine-specific value is baked in:
  *   PORT (default 8787) · CHIEF_MCP_PUBLIC_PROFILE (READ_ONLY|GOVERNED_RW|
- *   FEDERATION_RW, default GOVERNED_RW) · PAI_GATEWAY_DATA (default
+ *   FEDERATION_RW, default READ_ONLY) · PAI_GATEWAY_DATA (default
  *   ~/.pai-chief-gateway) · CHIEF_BRIDGE_DB_PATH · CHIEF_BRIDGE_SESSION_ID ·
  *   CHIEF_BRIDGE_USER_ID · CHIEF_BRIDGE_PAI_ID · CHIEF_BRIDGE_PROJECT_ID ·
  *   CHIEF_CLAIM_SERVICE_URL · CHIEF_TASK_BOX_ROOT · CHIEF_SYSTEM_CONTROL_PATH ·
  *   PAI_RUNTIME_POINTER · CHIEF_CANONICAL_TRUTH_PATH · CHIEF_QCHECK_PATH ·
+ *   CHIEF_MCP_BEARER_TOKEN or CHIEF_MCP_BEARER_TOKEN_FILE ·
+ *   CHIEF_MCP_ALLOW_EXEC=1 (write profile only) · CHIEF_MCP_ALLOWED_HOSTS ·
+ *   CHIEF_MCP_ALLOWED_ORIGINS (see SECURITY_BOUNDARY.md) ·
  *   PAI_GATEWAY_CANARY=1 (refuses port 8787 and requires an isolated DB path)
  */
 
@@ -49,6 +52,7 @@ const os = require('node:os');
 const path = require('node:path');
 const http = require('node:http');
 const crypto = require('node:crypto');
+const { securityFromEnv, normalizeToolName, checkTransport, preflight, checkRpc } = require('./standalone-security.cjs');
 
 const BRIDGE_SRC = path.join(__dirname, 'chief_chat_bridge_v1', 'src');
 const live = require(path.join(__dirname, 'chief_live_session_v1', 'src', 'chief-live-session'));
@@ -70,14 +74,17 @@ function configFromEnv(env = process.env) {
   if (/Google Drive|My Drive|PAI_PROJECT/i.test(dbPath)) throw new Error('CHIEF_BRIDGE_DB_MUST_BE_LOCAL');
   const canary = env.PAI_GATEWAY_CANARY === '1';
   const port = Number(env.PORT || 8787);
+  if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('PORT_INVALID');
   const sessionId = String(env.CHIEF_BRIDGE_SESSION_ID || 'pai-chief-main').trim();
   if (!/^[A-Za-z0-9._:-]{1,160}$/.test(sessionId)) throw new Error('CHIEF_BRIDGE_SESSION_ID_INVALID');
   if (canary && port === 8787) throw new Error('CANARY_PORT_MUST_NOT_BE_8787');
   if (canary && (!env.CHIEF_BRIDGE_DB_PATH || samePath(dbPath, path.join(dataRoot, 'state', 'chief-live.sqlite')))) throw new Error('CANARY_DB_MUST_BE_ISOLATED');
-  const profile = String(env.CHIEF_MCP_PUBLIC_PROFILE || 'GOVERNED_RW').toUpperCase();
+  const profile = String(env.CHIEF_MCP_PUBLIC_PROFILE || 'READ_ONLY').toUpperCase();
   if (!['READ_ONLY', 'GOVERNED_RW', 'FEDERATION_RW'].includes(profile)) throw new Error('CHIEF_MCP_PUBLIC_PROFILE_INVALID');
+  const security = securityFromEnv(env, profile);
+  delete process.env.CHIEF_MCP_BEARER_TOKEN;
   return {
-    dbPath, port, canary, sessionId, profile, dataRoot,
+    dbPath, port, canary, sessionId, profile, dataRoot, security,
     claimServiceUrl: env.CHIEF_CLAIM_SERVICE_URL || null,
     taskBoxRoot: env.CHIEF_TASK_BOX_ROOT || null,
     systemControlPath: env.CHIEF_SYSTEM_CONTROL_PATH || null,
@@ -124,6 +131,14 @@ function createServer({ env = process.env } = {}) {
   // Prompt-evidence is not wired in phase 1, so its tools cannot be public
   // (the bridge fails closed if a prompt tool is public without the hook).
   names = names.filter(n => !PROMPT_TOOL_NAMES.has(n));
+  // A closed non-execution catalog: new tools need deliberate classification.
+  const nonExecNames = new Set([...PUBLIC_READ_ONLY_TOOL_NAMES, ...READ_TOOLS.map(t => t.name),
+    'chief_turn', 'chief_prepare_handoff', 'chief_correct_memory', 'chief_admit_committed_work',
+    'pai_capabilities', 'pai_run_status', 'pai_result', 'pai_cancel']);
+  if (!cfg.security.allowExec) names = names.filter(n => nonExecNames.has(n));
+  const publicNames = new Set(names);
+  const synchronousSessionTools = new Set(['chief_resume', 'chief_status', 'chief_turn',
+    'chief_prepare_handoff', 'chief_correct_memory', 'chief_admit_committed_work']);
 
   const bridge = createFederationBridge({
     identity: cfg.identity,
@@ -149,16 +164,16 @@ function createServer({ env = process.env } = {}) {
   });
 
   const server = http.createServer((req, res) => {
+    const transportError = checkTransport(req, res, cfg.security, server.address()?.port);
+    if (transportError) { res.writeHead(transportError).end(); return; }
     const rawUrl = req.url || '';
+    if (!rawUrl.startsWith('/')) { res.writeHead(400).end(); return; }
     const urlPath = rawUrl.split('?')[0].replace(/\/+$/, '') || '/';
-
-    if (req.method === 'OPTIONS' && (urlPath === '/mcp' || urlPath === '/health')) {
-      res.writeHead(204, {
-        'access-control-allow-origin': '*',
-        'access-control-allow-methods': 'POST, GET, OPTIONS, HEAD',
-        'access-control-allow-headers': '*',
-        'access-control-max-age': '86400'
-      }).end();
+    if (urlPath !== '/mcp' && urlPath !== '/health') { res.writeHead(404).end(); return; }
+    const methods = urlPath === '/mcp' ? ['POST', 'GET', 'HEAD', 'OPTIONS'] : ['GET', 'HEAD', 'OPTIONS'];
+    if (!methods.includes(req.method)) { res.writeHead(405, { allow: methods.join(', ') }).end(); return; }
+    if (req.method === 'OPTIONS') {
+      res.writeHead(preflight(req, res, methods)).end();
       return;
     }
 
@@ -173,15 +188,14 @@ function createServer({ env = process.env } = {}) {
       });
       res.writeHead(200, {
         'content-type': 'application/json',
-        'access-control-allow-origin': '*',
         'content-length': Buffer.byteLength(payload)
       });
       if (req.method === 'GET') res.end(payload); else res.end();
       return;
     }
 
-    if (urlPath !== '/mcp' || req.method !== 'POST' || !/^application\/json/i.test(req.headers['content-type'] || '')) {
-      res.writeHead(404, { 'access-control-allow-origin': '*' }).end();
+    if (String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase() !== 'application/json') {
+      res.writeHead(415).end();
       return;
     }
     let body = '';
@@ -194,17 +208,26 @@ function createServer({ env = process.env } = {}) {
       try {
         request = JSON.parse(body);
       } catch (_) {
-        res.writeHead(400, { 'content-type': 'application/json', 'access-control-allow-origin': '*' }).end(JSON.stringify({ error: 'BRIDGE_PROTOCOL_INVALID' }));
+        res.writeHead(400, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'BRIDGE_PROTOCOL_INVALID' }));
         return;
       }
-      if (!request || typeof request !== 'object' || Array.isArray(request)) {
-        res.writeHead(400, { 'content-type': 'application/json', 'access-control-allow-origin': '*' }).end(JSON.stringify({ error: 'BRIDGE_PROTOCOL_INVALID' }));
+      if (!request || typeof request !== 'object' || Array.isArray(request) || request.jsonrpc !== '2.0' || typeof request.method !== 'string') {
+        res.writeHead(400, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'BRIDGE_PROTOCOL_INVALID' }));
+        return;
+      }
+      const denied = checkRpc(req, request, cfg, publicNames);
+      if (denied) {
+        if (denied.status === 401) res.setHeader('www-authenticate', 'Bearer');
+        res.writeHead(denied.status || 200, { 'content-type': 'application/json' }).end(JSON.stringify({
+          jsonrpc: '2.0', id: request.id ?? null,
+          error: { code: denied.code || -32000, message: denied.message, data: { code: denied.message } }
+        }));
         return;
       }
 
       const protoHeader = req.headers['mcp-protocol-version'];
       if (protoHeader && !['2026-07-28', '2025-03-26', '2024-11-05'].includes(protoHeader)) {
-        res.writeHead(400, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
+        res.writeHead(400, { 'content-type': 'application/json' });
         res.end(JSON.stringify({
           jsonrpc: '2.0',
           id: request?.id ?? null,
@@ -215,7 +238,7 @@ function createServer({ env = process.env } = {}) {
 
       const methodHeader = req.headers['mcp-method'];
       if (methodHeader && methodHeader !== request.method) {
-        res.writeHead(400, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
+        res.writeHead(400, { 'content-type': 'application/json' });
         res.end(JSON.stringify({
           jsonrpc: '2.0',
           id: request?.id ?? null,
@@ -225,14 +248,13 @@ function createServer({ env = process.env } = {}) {
       }
 
       const rawToolName = request.params?.name;
-      const normalizeToolName = name => typeof name === 'string' ? name.replace(/^(?:pai_terminal|pai-terminal)[.:]/, '') : name;
       const normalizedToolName = normalizeToolName(rawToolName);
       const toolNameHeader = req.headers['mcp-name'];
       const normalizedHeaderName = normalizeToolName(toolNameHeader);
 
       if (toolNameHeader && request.method === 'tools/call') {
         if (toolNameHeader !== rawToolName && normalizedHeaderName !== normalizedToolName) {
-          res.writeHead(400, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
+          res.writeHead(400, { 'content-type': 'application/json' });
           res.end(JSON.stringify({
             jsonrpc: '2.0',
             id: request?.id ?? null,
@@ -252,10 +274,25 @@ function createServer({ env = process.env } = {}) {
       const protocolVersion = (protoHeader === '2024-11-05') ? '2024-11-05' : (isLegacy ? '2025-03-26' : '2026-07-28');
 
       let response;
+      let sessionSavepoint = false;
       try {
+        // These existing session tools are synchronous. Undo lazy session
+        // creation/audit/receipts on rejection; never span an async RPC await.
+        if (request.method === 'tools/call' && synchronousSessionTools.has(request.params?.name)) {
+          db.exec('SAVEPOINT standalone_session_call');
+          sessionSavepoint = true;
+        }
         const rawRes = bridge.rpc(request, { protocolVersion, isLegacy, headers: req.headers });
+        if (sessionSavepoint) {
+          if (rawRes?.error) db.exec('ROLLBACK TO standalone_session_call');
+          db.exec('RELEASE standalone_session_call');
+          sessionSavepoint = false;
+        }
         response = (rawRes && typeof rawRes.then === 'function') ? await rawRes : rawRes;
       } catch (rpcErr) {
+        if (sessionSavepoint) {
+          db.exec('ROLLBACK TO standalone_session_call; RELEASE standalone_session_call');
+        }
         response = {
           jsonrpc: '2.0',
           id: request?.id ?? null,
@@ -269,7 +306,6 @@ function createServer({ env = process.env } = {}) {
 
       const resHeaders = {
         'content-type': 'application/json',
-        'access-control-allow-origin': '*',
         'mcp-protocol-version': (request.method === 'initialize' && response?.result?.protocolVersion)
           ? response.result.protocolVersion
           : protocolVersion

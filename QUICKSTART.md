@@ -44,7 +44,7 @@ Run `node tools/quickstart.mjs` next. It performs these steps:
 - `deps`: checks `playwright-core` before proceeding.
 - `doctor`: runs the package checks again.
 - `seed-demo`: encodes, decodes, and prepares a candidate-only seed with a fingerprint.
-- `gateway-smoke`: starts an isolated gateway; checks initialize, tools/list, chief_status, unknown-tool refusal, and health.
+- `gateway-smoke`: uses a generated fixture bearer and isolated gateways; checks default READ_ONLY, unauthenticated refusal, authenticated chief_status, unknown-tool refusal, health, and execution-tool visibility with and without explicit opt-in.
 - `browser-sample`: launches a fresh headless Chrome profile and runs GitHub `session.check`.
 - `windows-bonus`: checks `msi-cp` process enumeration on Windows; skips elsewhere.
 - Cleanup stops child processes and removes temporary data; success prints `QUICKSTART OK`.
@@ -107,12 +107,11 @@ includes the exact `evidence_dir`; a replay returns the recorded result.
 In a POSIX terminal at the repository root:
 
 ```sh
-PORT=8899 CHIEF_BRIDGE_DB_PATH="$PWD/pai-cp-demo.sqlite" CHIEF_MCP_PUBLIC_PROFILE=READ_ONLY node gateway/server.standalone.cjs
+PORT=8899 CHIEF_BRIDGE_DB_PATH="$PWD/pai-cp-demo.sqlite" node gateway/server.standalone.cjs
 ```
 
 PowerShell equivalent: set `$env:PORT='8899'`,
-`$env:CHIEF_BRIDGE_DB_PATH=Join-Path (Get-Location) 'pai-cp-demo.sqlite'`,
-and `$env:CHIEF_MCP_PUBLIC_PROFILE='READ_ONLY'`; then run
+and `$env:CHIEF_BRIDGE_DB_PATH=Join-Path (Get-Location) 'pai-cp-demo.sqlite'`; then run
 `node gateway/server.standalone.cjs`. Leave it running and use another terminal:
 
 ```sh
@@ -121,9 +120,32 @@ curl -i -X POST http://127.0.0.1:8899/mcp -H 'Content-Type: application/json' --
 ```
 
 Use `curl.exe` in PowerShell. Health reports `status: "READY"`; initialize returns an MCP result and a session header for subsequent calls.
-Profiles are `READ_ONLY`, `GOVERNED_RW` (default), and `FEDERATION_RW`.
-V1 does not strictly enforce per-tool argument schemas: use `READ_ONLY`
-for untrusted callers. [Gateway scope](gateway/README.md#scope-in-v1) is partial.
+The default profile is `READ_ONLY`, exposing `chief_resume` and `chief_status`.
+Without a configured bearer, health and discovery (including initialize and
+tools/list) work, but every tools/call returns HTTP 401. Session IDs do not
+replace bearer authentication.
+
+For tool calls, provision a bearer with at least 32 random bytes through your
+secret mechanism. Set either `CHIEF_MCP_BEARER_TOKEN` or
+`CHIEF_MCP_BEARER_TOKEN_FILE` in the server environment before starting it,
+never both. A token file must be a local regular file, not a symlink, with
+access restricted to the service owner (POSIX mode 0600; on Windows, provision
+an equivalent owner-restricted ACL). Do not commit it or put token values in
+URLs or command arguments.
+
+The bundled seed CLI accepts the same env/file settings. Other MCP clients
+must send `Authorization: Bearer <configured-value>` on every tool call,
+including `chief_status`. Configure the same credential through the client's
+secret mechanism; do not paste a real bearer into these examples.
+
+Writes require explicitly setting `CHIEF_MCP_PUBLIC_PROFILE=GOVERNED_RW` or
+`FEDERATION_RW`, plus a configured bearer. Neither write profile alone exposes
+execution tools: `pai_action_run` and `pai_cognition_run` additionally require
+`CHIEF_MCP_ALLOW_EXEC=1`. Execution opt-in is invalid with `READ_ONLY`.
+V1 does not strictly enforce per-tool argument schemas.
+[Gateway scope](gateway/README.md#scope-in-v1) is partial; see the
+[security boundary](gateway/SECURITY_BOUNDARY.md) for token validation and exact
+Host/Origin policies, including browser and proxy configuration.
 
 ## Troubleshooting
 

@@ -151,7 +151,7 @@ entries remain unchanged.
 | `core/suno-cp/config.mjs` | `4cc1dda532f3aea2ef381d434335b4c9b3c4ceefc30df43ce20a1ed46b18bd8f` |
 | `README.md` | `c3d9a0379fe3a6844b49e695336585fc6358e035cbf1ce422b56c2caf441d6e7` |
 | `addons/pai-cp-builder/README.md` | `32a857d3d1831e818e67d69c8a33ca8526e23c7b530365f4b56f532b06266fde` |
-| `gateway/README.md` | `f3d15faefc9e75799853343a8d63c23d7819cd059110e64b71f54915c030ca93` |
+| `gateway/README.md` | `60e8843162066cf700b95f1cdc67e3e92ce19618661460d1bbbce494b053dee4` |
 | `tools/doctor.mjs` | `373782b45ce37b8daca8c11f519ba7c2983eaa0236d4e84d1b1f670a1c940279` |
 
 ### Brand-new sellable-pass files: SHA-256
@@ -168,7 +168,7 @@ entries remain unchanged.
 | `TIERS.md` | `0c4c75fec07d8edad0836b679553106994971df942979e612c130584ccb5dce9` |
 | `PRICING_DRAFT_INTERNAL.md` | `8c17290bfd539beb61f97ff40871f0fee0c0fa0ef96c6d3a2e0e3b84a212352b` |
 | `core/browser-control-plane-core/proto/lease-local.mjs` | `20fe544a4b807d7b0d1180aa259c743282a286d503126e6ac33662e7e996643e` |
-| `tools/quickstart.mjs` | `a1f3ded220cc84e86767227aa9192f2bfeea49c27b227be4263ccb6b4d411125` |
+| `tools/quickstart.mjs` | `c2e79462913b65fb6f39b0c1d7da74718da4f50b6b3a276acda1881b07a79e0a` |
 | `.github/ISSUE_TEMPLATE/bug_report.md` | `25e4cb3995cf94a22bd094c097bf7e7c6db064af18ed5e6b861e13a118ace653` |
 | `.github/ISSUE_TEMPLATE/config.yml` | `13064e7bea658e01e718b414fbb7b3b244f36411fe25ee2055c151f7b534547a` |
 | `.github/ISSUE_TEMPLATE/pack_breakage.md` | `80eae630ae445d2ab1f20c33a411531d8a8d1f989d570e79bd2c076f1837a1af` |
