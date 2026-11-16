@@ -68,3 +68,15 @@ cd C:\temp\msi-cp
 
 - `sys.screenshot` chụp tab ĐANG ACTIVE trên Chrome port đó — không chọn tab.
 - Không mở port ra ngoài tailnet: mọi thứ chạy local trên MSI, điều khiển qua SSH như cũ.
+
+## sys.exec safety mode
+
+`sys.exec` runs a free-form PowerShell command. Its denylist is a guardrail, not a security boundary. The mode is set by `PAI_CP_SYS_EXEC`:
+
+| Value | Behavior |
+|---|---|
+| `off` (default in pai-cp-free) | `sys.exec` is refused with `SYS_EXEC_DISABLED`. |
+| `confirm` | The call must include `"confirm": "EXEC <first 12 hex chars of sha256(command)>"`, otherwise `CONFIRM_REQUIRED`. |
+| `on` | Legacy behavior (default in the private source package). |
+
+Prefer the structured actions (`sys.processes`, `sys.tasks`, `sys.files`) over `sys.exec`.

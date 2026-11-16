@@ -24,6 +24,11 @@ try {
   }
   const license = fs.existsSync(path.join(root, 'LICENSE')) ? fs.readFileSync(path.join(root, 'LICENSE'), 'utf8') : '';
   check(license.includes('PolyForm Shield License 1.0.0') && license.includes('Required Notice: Copyright 2026 Tan Ho'), 'LICENSE');
+  // S2 (audit 2026-11-16): the public subset must ship sys.exec disabled by default.
+  for (const reg of ['core/home-cp/actions-home/registry.mjs', 'core/msi-cp/actions-msi/registry.mjs']) {
+    const src = fs.existsSync(path.join(root, reg)) ? fs.readFileSync(path.join(root, reg), 'utf8') : '';
+    check(/const SYS_EXEC_DEFAULT_MODE = 'off';/.test(src) && src.includes('sysExecGate(command, confirm);'), 'SYS_EXEC OFF BY DEFAULT ' + reg);
+  }
   const manifest = fs.readFileSync(path.join(root, 'PACKAGE_MANIFEST.md'), 'utf8');
   const section = manifest.split(/^### PUBLIC SUBSET\r?$/m)[1]?.split(/^#{1,3} /m)[0] || '';
   check(section.includes('.claude-plugin/') && section.includes('plugins/') &&

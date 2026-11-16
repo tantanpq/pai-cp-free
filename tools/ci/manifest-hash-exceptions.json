@@ -10,5 +10,9 @@
   {
     "path": "QUICKSTART.md",
     "reason": "Public-side document maintained in this repo; its PACKAGE_MANIFEST hash row records the SOURCE package bytes at packaging time. Public bytes intentionally differ under the pointer-rewrite rule recorded in the source manifest (2026-10-16) and later public-side edits (marketplace channel, 2026-10-16)."
+  },
+  {
+    "path": "core/home-cp/config.mjs",
+    "reason": "Public-side scrub: the header comment names the example host HOME-PC instead of the owner's real machine name. Code is byte-identical to the SOURCE package apart from that comment line; the PACKAGE_MANIFEST hash row records the SOURCE bytes."
   }
 ]

@@ -138,6 +138,19 @@ const trunc = (s, max = 20000) =>
   s.length > max ? s.slice(0, max) + `\n...[truncated ${s.length - max} chars]` : s;
 const cmdId = (s) => crypto.createHash('sha256').update(s, 'utf8').digest('hex').slice(0, 12);
 
+// sys.exec mode gate (audit 2026-11-16, S2). PAI_CP_SYS_EXEC = off | confirm | on.
+//   off     — sys.exec refused (SYS_EXEC_DISABLED).
+//   confirm — caller must pass confirm: "EXEC <sha256_12 of command>" (intent check, not a sandbox).
+//   on      — legacy behavior; the denylist below is a guardrail, not a boundary.
+const SYS_EXEC_DEFAULT_MODE = 'off';
+function sysExecGate(command, confirm) {
+  const mode = String(process.env.PAI_CP_SYS_EXEC || SYS_EXEC_DEFAULT_MODE).trim().toLowerCase();
+  if (!['off', 'confirm', 'on'].includes(mode)) throw new Error('SYS_EXEC_MODE_INVALID');
+  if (mode === 'off') throw new Error('SYS_EXEC_DISABLED: set PAI_CP_SYS_EXEC=confirm to enable');
+  if (mode === 'confirm' && confirm !== `EXEC ${cmdId(command)}`) throw new Error('CONFIRM_REQUIRED: pass confirm "EXEC <first 12 hex of sha256(command)>"');
+}
+
+
 // Parse JSON từ PowerShell với mã lỗi domain-specific (finding #12).
 function parsePSJson(raw, code) {
   const t = (raw || '').trim();
@@ -152,9 +165,10 @@ function parsePSJson(raw, code) {
 
 export const actions = {
   // Chạy lệnh PowerShell/cmd local. Evidence chỉ log hash command (finding #8: chống leak secret).
-  'sys.exec': async (ctx, { command, timeout_ms = 30000 } = {}) =>
+  'sys.exec': async (ctx, { command, confirm, timeout_ms = 30000 } = {}) =>
     withEvidence(ctx, 'sys.exec', async () => {
       if (typeof command !== 'string' || !command.trim()) throw new Error('SYS_EXEC_EMPTY_COMMAND');
+      sysExecGate(command, confirm);
       const blocked = checkExecBlocked(command);
       if (blocked) throw new Error(`SYS_EXEC_BLOCKED: ${blocked}`);
       await evidence(ctx, 'sys.exec.cmd', { cmd_sha256_12: cmdId(command), cmd_len: command.length });
